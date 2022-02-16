@@ -2,6 +2,9 @@ package com.rtb.controller;
 
 import java.util.List;
 
+import org.springframework.batch.core.launch.JobExecutionNotRunningException;
+import org.springframework.batch.core.launch.JobOperator;
+import org.springframework.batch.core.launch.NoSuchJobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +21,9 @@ public class JobController {
 
 	@Autowired
 	JobService jobService;
+	
+	@Autowired
+	JobOperator jobOperator;
 
 	/**
 	 * 
@@ -37,6 +43,28 @@ public class JobController {
 		jobService.startJob(jobName, jobParamRequestList);
 
 		return "Job Started...";
+	}
+	
+	
+	@GetMapping("/stop/{jobExecutionId}")
+	public String stopJob(@PathVariable Long jobExecutionId) {
+		
+		try {
+			/*
+			 * This will stop the job. But
+			 * Note : If the job is chuck oriented and we are stopping the job
+			 * while it's running the chunk then it will not be stopped for that 
+			 * particular chunk, it will first finish that chunk and then it will
+			 * be stopped.
+			 */
+			jobOperator.stop(jobExecutionId);
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+		
+		return "Job Stopped...";
+
 	}
 
 }
