@@ -6,12 +6,14 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
@@ -53,7 +55,7 @@ public class SampleJob {
 
 		return stepBuilderFactory.get("First Chink Step")
 				.<StudentCsv, StudentCsv>chunk(3)
-				.reader(flatFileItemReader())
+				.reader(flatFileItemReader(null))
 				//.processor(firstItemProcessor)
 				.writer(firstItemWriter)
 				.build();
@@ -67,6 +69,14 @@ public class SampleJob {
 	 * Steps : 
 	 * 
 	 * 1 -> set the source or the path where the csv file exists.
+	 * 		For setting a path we can use either of this method :
+	 * 			
+	 * 			a. Hardcoding the path : flatFileItemReader.setResource(new FileSystemResource(new File("thepath")));
+	 * 			b. Adding a key value pair of the path in project argument (ex : inputPath=thePath) and using it here like @Value("#{jobParameters[inputPath]}").
+	 * 				Also, when using @Value we will have to run this method in a context, therefore we need to provide
+	 * 				@Bean annotation and also it need to run in a defined scope, and for this method the scope is 
+	 * 				Step Scoped so we need to annotate this method with @StepScope
+	 * 
 	 * 2 -> Configure the line mapper : 
 	 * 		LineMapper has two componenents :- LineTokenizer and Bean Mapper
 	 * 		3 -> configure Line Tokenier using DelimitedLineTokenizer(String delimiter)
@@ -77,13 +87,16 @@ public class SampleJob {
 	 * 5 -> set the number of lines to skip
 	 */
 	
-	public FlatFileItemReader<StudentCsv> flatFileItemReader() {
+	@StepScope
+	@Bean
+	public FlatFileItemReader<StudentCsv> flatFileItemReader(
+			@Value("#{jobParameters['inputFile']}") FileSystemResource fileSystemResource
+			) {
 
 		
 		FlatFileItemReader<StudentCsv> flatFileItemReader = new FlatFileItemReader<>();
 
-		flatFileItemReader.setResource(new FileSystemResource(new File(
-				"R:\\spring_workspaces\\spring_boot_spring_batch\\spring_batch_gradle\\inputfiles\\students.csv")));
+		flatFileItemReader.setResource(fileSystemResource);
 
 		flatFileItemReader.setLineMapper(new DefaultLineMapper<StudentCsv>() {
 
