@@ -5,12 +5,14 @@ import java.util.List;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.stereotype.Component;
 
+import com.rtb.model.StudentCsv;
+
 /*
  * Item Writer is the last stage of a chunk oriented step and is used to
  * do final implementation of the value passed by the item processor.
  */
 @Component
-public class FirstItemWriter implements ItemWriter<Long>{
+public class FirstItemWriter implements ItemWriter<StudentCsv>{
 
 	/**
 	 * In this method we will get the list of item.
@@ -18,7 +20,7 @@ public class FirstItemWriter implements ItemWriter<Long>{
 	 * If the size of the chunk is 3 the list size is also 3.
 	 */
 	@Override
-	public void write(List<? extends Long> items) throws Exception {
+	public void write(List<? extends StudentCsv> items) throws Exception {
 		
 		System.out.println("Inside Item Writer");
 		

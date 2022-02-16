@@ -1,23 +1,24 @@
 package com.rtb.config;
 
+import java.io.File;
+
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
+import org.springframework.batch.item.file.mapping.DefaultLineMapper;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
 
-import com.rtb.listeners.FirstJobListener;
-import com.rtb.listeners.FirstStepListener;
+import com.rtb.model.StudentCsv;
 import com.rtb.processor.FirstItemProcessor;
 import com.rtb.reader.FirstItemReader;
-import com.rtb.service.SecondTasklet;
 import com.rtb.writer.FirstItemWriter;
 
 @Configuration
@@ -29,140 +30,88 @@ public class SampleJob {
 	@Autowired
 	private StepBuilderFactory stepBuilderFactory;
 
-	@Autowired
-	private SecondTasklet secondTasklet;
-	
-	@Autowired
-	private FirstJobListener firstJobListener;
-	
-	@Autowired
-	private FirstStepListener firstStepListener;
-	
+//	@Autowired
+//	private SecondTasklet secondTasklet;
+
 	@Autowired
 	private FirstItemReader firstItemReader;
-	
+
 	@Autowired
 	private FirstItemProcessor firstItemProcessor;
-	
+
 	@Autowired
 	private FirstItemWriter firstItemWriter;
-	
-	// ---------------Tasklet Step---------------
+
 	@Bean
-	public Job firstJob() {
+	public Job chunkJob() {
 
-		// create a job by using JobBuilderFactpry and giving it a name, here, First Job
-		// in start we need to pass the first step
-		// for adding more steps we need to use next() method
-		
-		// incrementer : in spring batch, when a job is run it has an instance id
-		// and the job with same instance cannot be run again after the job is completed
-		// successfully, therefore for running the job again and again, we can use
-		// an incrementer which will add a key value pair i.e. run.id = LONG value, 
-		// and will incrementing the value with each job execution
-		
-		// we can attach listeners using the listener method
-		
-		return jobBuilderFactory.get("First Job")
-				.incrementer(new RunIdIncrementer())
-				.start(firstStep())
-				.next(secondStep()) // for subsequent steps we need to use next method
-				.listener(firstJobListener)
-				.build();
+		return jobBuilderFactory.get("Chunk Job").incrementer(new RunIdIncrementer()).start(firstChunkStep()).build();
 
 	}
 
-	private Step firstStep() {
+	private Step firstChunkStep() {
 
-		// using StepBuilderFactory we create a step and we also provide it a name, here, First Step
-		// .tasklet is used to create a tasklet step
-		
-		return stepBuilderFactory.get("First Step")
-				.tasklet(firstTask())
-				.listener(firstStepListener)
+		return stepBuilderFactory.get("First Chink Step")
+				.<StudentCsv, StudentCsv>chunk(3)
+				.reader(flatFileItemReader())
+				//.processor(firstItemProcessor)
+				.writer(firstItemWriter)
 				.build();
 	}
-	
-	private Step secondStep() {
-		
-		// using StepBuilderFactory we create another step 
-		// instead of proving the instance of interface we can
-		// provide the instance of class which implements Tasklet interface
-		
-		return stepBuilderFactory.get("Second Step")
-				.tasklet(secondTasklet).build();
-	}
 
-	private Tasklet firstTask() {
-
-		// here we create our task, execute it and 
-		// giving the status as finished
-		
-		return new Tasklet() {
-
-			@Override
-			public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-
-				System.out.println("This is first tasklet step.");
-				
-				// we can use the step execution context only at the step level
-				System.out.println("STEP_SEC = " +chunkContext.getStepContext().getStepExecutionContext());
-				
-				return RepeatStatus.FINISHED;
-			}
-		};
-	}
-	
-	/*
-	 * private Tasklet secondTask() {
-	 * 
-	 * // here we create our another task, execute it and // giving the status as
-	 * finished
-	 * 
-	 * return new Tasklet() {
-	 * 
-	 * @Override public RepeatStatus execute(StepContribution contribution,
-	 * ChunkContext chunkContext) throws Exception {
-	 * 
-	 * System.out.println("This is second tasklet step."); return
-	 * RepeatStatus.FINISHED; } }; }
-	 */
-	
-	// ---------------------------------------
-	
-	
-	// --------------Chunk Oriented Step----------------
 
 	/**
+	 * For making FlatFileItemReader (i.e. csv file reader), 
+	 * we need to configure our flatFileItemReader.
 	 * 
-	 * In this job both types of steps is being executed
+	 * Steps : 
 	 * 
+	 * 1 -> set the source or the path where the csv file exists.
+	 * 2 -> Configure the line mapper : 
+	 * 		LineMapper has two componenents :- LineTokenizer and Bean Mapper
+	 * 		3 -> configure Line Tokenier using DelimitedLineTokenizer(String delimiter)
+	 * 		setNames() method is used to define the headers
+	 * 		setDelimiter() method is used to pass the delimiter string like, , | 
+	 * 4 -> configure the Bean Mapper using the setFieldSetMapper(new BeanWrapperFieldSetMapper<StudentCsv>()
+	 * 		here basically we need to configure our target Object class
+	 * 5 -> set the number of lines to skip
 	 */
+	
+	public FlatFileItemReader<StudentCsv> flatFileItemReader() {
 
-		@Bean
-		public Job secondJob() {
-			
-			return jobBuilderFactory.get("Second Job")
-					.incrementer(new RunIdIncrementer())
-					.start(firstChunkStep()) // chunk oriented step
-					.next(secondStep()) // tasklet step
-					.build();
-			
-		}
 		
-		private Step firstChunkStep() {
-			
-			return stepBuilderFactory.get("First Chunk Step")
-					.<Integer, Long>chunk(3)   // we have to specify the input and output datatype with chunk size
-					.reader(firstItemReader)
-					.processor(firstItemProcessor)  // this optional, but, if it is not used then the input and output datatypes have to be same
-					.writer(firstItemWriter)
-					.build();
-					
-		}
-	
-	
-	// -------------------------------------------
+		FlatFileItemReader<StudentCsv> flatFileItemReader = new FlatFileItemReader<>();
 
-	
+		flatFileItemReader.setResource(new FileSystemResource(new File(
+				"R:\\spring_workspaces\\spring_boot_spring_batch\\spring_batch_gradle\\inputfiles\\students.csv")));
+
+		flatFileItemReader.setLineMapper(new DefaultLineMapper<StudentCsv>() {
+
+			{
+				// by default the delimated line tokenizer will be comma, 
+				// we don't need to explicitly set it
+				setLineTokenizer(new DelimitedLineTokenizer() {
+
+					{
+						setNames("ID", "First Name", "Last Name", "Email");
+					}
+				});
+				
+				setFieldSetMapper(new BeanWrapperFieldSetMapper<>() {
+					
+					{
+						
+						setTargetType(StudentCsv.class);
+					}
+				});
+			}
+
+		});
+
+		// skipping the first line as that is our column header
+		flatFileItemReader.setLinesToSkip(1);
+		
+		return flatFileItemReader;
+	}
+
 }
