@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableBatchProcessing
@@ -18,6 +19,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 	"com.rtb.controller"
 })
 @EnableAsync  // will enable the asynchronous behavior
+@EnableScheduling  // will enable the spring scheduler and is used to schedule a job
 public class SpringBatchGradleApplication {
 
 	public static void main(String[] args) {
