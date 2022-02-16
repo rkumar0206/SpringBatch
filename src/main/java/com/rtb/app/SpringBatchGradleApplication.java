@@ -4,17 +4,20 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableBatchProcessing
-@ComponentScan({"com.rtb.config", 
+@ComponentScan({
+	"com.rtb.config", 
 	"com.rtb.service",
 	"com.rtb.listeners",
 	"com.rtb.reader",
 	"com.rtb.writer",
-	"com.rtb.processor"
-	
+	"com.rtb.processor",
+	"com.rtb.controller"
 })
+@EnableAsync  // will enable the asynchronous behavior
 public class SpringBatchGradleApplication {
 
 	public static void main(String[] args) {

@@ -48,7 +48,7 @@ public class SampleJob {
 	private FirstItemWriter firstItemWriter;
 	
 	// ---------------Tasklet Step---------------
-	//@Bean
+	@Bean
 	public Job firstJob() {
 
 		// create a job by using JobBuilderFactpry and giving it a name, here, First Job
@@ -133,13 +133,19 @@ public class SampleJob {
 	
 	// --------------Chunk Oriented Step----------------
 
+	/**
+	 * 
+	 * In this job both types of steps is being executed
+	 * 
+	 */
 
 		@Bean
 		public Job secondJob() {
 			
-			return jobBuilderFactory.get("Second job")
+			return jobBuilderFactory.get("Second Job")
 					.incrementer(new RunIdIncrementer())
-					.start(firstChunkStep())
+					.start(firstChunkStep()) // chunk oriented step
+					.next(secondStep()) // tasklet step
 					.build();
 			
 		}
@@ -147,9 +153,9 @@ public class SampleJob {
 		private Step firstChunkStep() {
 			
 			return stepBuilderFactory.get("First Chunk Step")
-					.<Integer, Long>chunk(3)
+					.<Integer, Long>chunk(3)   // we have to specify the input and output datatype with chunk size
 					.reader(firstItemReader)
-					.processor(firstItemProcessor)
+					.processor(firstItemProcessor)  // this optional, but, if it is not used then the input and output datatypes have to be same
 					.writer(firstItemWriter)
 					.build();
 					
