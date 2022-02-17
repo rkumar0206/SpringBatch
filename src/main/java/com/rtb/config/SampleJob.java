@@ -1,7 +1,5 @@
 package com.rtb.config;
 
-import java.io.File;
-
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -12,6 +10,8 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.json.JacksonJsonObjectReader;
+import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
 import com.rtb.model.StudentCsv;
+import com.rtb.model.StudentJSON;
 import com.rtb.processor.FirstItemProcessor;
 import com.rtb.reader.FirstItemReader;
 import com.rtb.writer.FirstItemWriter;
@@ -54,8 +55,9 @@ public class SampleJob {
 	private Step firstChunkStep() {
 
 		return stepBuilderFactory.get("First Chink Step")
-				.<StudentCsv, StudentCsv>chunk(3)
-				.reader(flatFileItemReader(null))
+				.<StudentJSON, StudentJSON>chunk(3)
+				//.reader(flatFileItemReader(null))
+				.reader(jsonItemReader(null))
 				//.processor(firstItemProcessor)
 				.writer(firstItemWriter)
 				.build();
@@ -127,4 +129,35 @@ public class SampleJob {
 		return flatFileItemReader;
 	}
 
+	
+	/**
+	 * 
+	 * @param fileSystemResource
+	 * 
+	 * Don't forget to change the path of inputFile in run configuration arguments.
+	 * 
+	 * Here we are using jackson library for converting json file to our StudentJSON object
+	 */
+	@StepScope
+	@Bean
+	public JsonItemReader<StudentJSON> jsonItemReader(
+			@Value("#{jobParameters['inputFile']}") FileSystemResource fileSystemResource
+			) {
+		
+		JsonItemReader<StudentJSON> jsonItemReader = new JsonItemReader<>();
+		
+		jsonItemReader.setResource(fileSystemResource);
+		
+		jsonItemReader.setJsonObjectReader(
+					new JacksonJsonObjectReader<>(StudentJSON.class)
+				);
+		
+		// used to set the max read count - it will read only max count from the json file
+		jsonItemReader.setMaxItemCount(8);
+		
+		// ignore the first 2 items of the json files
+		jsonItemReader.setCurrentItemCount(2);
+		
+		return jsonItemReader;
+	}
 }
