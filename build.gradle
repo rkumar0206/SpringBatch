@@ -16,6 +16,14 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-batch'
 	//implementation 'org.springframework.boot:spring-boot-starter-web'
 	runtimeOnly 'mysql:mysql-connector-java'
+	
+	// below 2 dependencies are requied for javax.xml.bind...and is only required for java version greater than 8
+	implementation 'jakarta.xml.bind:jakarta.xml.bind-api'
+	implementation 'org.glassfish.jaxb:jaxb-runtime'
+	
+	// this dependency is required when working with xml 
+	implementation 'org.springframework:spring-oxm'
+	
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.batch:spring-batch-test'
 }

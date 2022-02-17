@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<students>
+
+	<student>
+		<id>1</id>
+		<fName>John</fName>
+		<lastName>Smith</lastName>
+		<email>john@gmail.com</email>
+	</student>
+
+	<student>
+		<id>2</id>
+		<fName>Sachin</fName>
+		<last_name>Dave</last_name>
+		<email>sachin@gmail.com</email>
+	</student>
+	<student>
+		<id>3</id>
+		<fName>Peter</fName>
+		<last_name>Mark</last_name>
+		<email>peter@gmail.com</email>
+	</student>
+	<student>
+		<id>4</id>
+		<fName>Martin</fName>
+		<last_name>Smith</last_name>
+		<email>martin@gmail.com</email>
+	</student>
+	<student>
+		<id>5</id>
+		<fName>Raj</fName>
+		<last_name>Patel</last_name>
+		<email>raj@gmail.com</email>
+	</student>
+	<student>
+		<id>6</id>
+		<fName>Virat</fName>
+		<last_name>Yadav</last_name>
+		<email>virat@gmail.com</email>
+	</student>
+	<student>
+		<id>7</id>
+		<fName>Prabhas</fName>
+		<last_name>Shirke</last_name>
+		<email>prabhas@gmail.com</email>
+	</student>
+	<student>
+		<id>8</id>
+		<fName>Rohit</fName>
+		<last_name>Kumar</last_name>
+		<email>rohit@gmail.com</email>
+	</student>
+	<student>
+		<id>9</id>
+		<fName>Sagar</fName>
+		<last_name>Singh</last_name>
+		<email>sagar@gmail.com</email>
+	</student>
+	<student>
+		<id>10</id>
+		<fName>Nidhi</fName>
+		<last_name>Kumari</last_name>
+		<email>nidhi@gmail.com</email>
+	</student>
+
+</students>

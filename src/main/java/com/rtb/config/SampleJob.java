@@ -12,14 +12,17 @@ import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
+import org.springframework.batch.item.xml.StaxEventItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 import com.rtb.model.StudentCsv;
 import com.rtb.model.StudentJSON;
+import com.rtb.model.StudentXML;
 import com.rtb.processor.FirstItemProcessor;
 import com.rtb.reader.FirstItemReader;
 import com.rtb.writer.FirstItemWriter;
@@ -55,9 +58,10 @@ public class SampleJob {
 	private Step firstChunkStep() {
 
 		return stepBuilderFactory.get("First Chink Step")
-				.<StudentJSON, StudentJSON>chunk(3)
+				.<StudentXML, StudentXML>chunk(3)
 				//.reader(flatFileItemReader(null))
-				.reader(jsonItemReader(null))
+				//.reader(jsonItemReader(null))
+				.reader(staxEventItemReader(null))
 				//.processor(firstItemProcessor)
 				.writer(firstItemWriter)
 				.build();
@@ -160,4 +164,39 @@ public class SampleJob {
 		
 		return jsonItemReader;
 	}
+	
+	/**
+	 * 
+	 * STAX - Streaming API for XML
+	 * It is used to read from xml file
+	 */
+	
+	@StepScope
+	@Bean
+	public StaxEventItemReader<StudentXML> staxEventItemReader(
+			@Value("#{jobParameters['inputFile']}") FileSystemResource fileSystemResource
+			) {
+		
+		StaxEventItemReader<StudentXML> staxEventItemReader = new 
+				StaxEventItemReader<>();
+		
+		staxEventItemReader.setResource(fileSystemResource);
+		staxEventItemReader.setFragmentRootElementName("student");
+		
+		/*
+		 * Converting xml to java object is called unmarshalling and reverse we call marchalling,
+		 * here we are doing unmarshilling
+		 */
+		
+		staxEventItemReader.setUnmarshaller(new Jaxb2Marshaller() {
+			
+			{
+				setClassesToBeBound(StudentXML.class);
+				
+			}
+		});
+		
+		return staxEventItemReader;
+	}
+	
 }
