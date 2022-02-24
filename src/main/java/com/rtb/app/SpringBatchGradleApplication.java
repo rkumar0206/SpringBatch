@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 @EnableBatchProcessing
@@ -29,10 +28,10 @@ public class SpringBatchGradleApplication {
 		SpringApplication.run(SpringBatchGradleApplication.class, args);
 	}
 	
-	@Bean
-	public RestTemplate restTemplate() {
-		
-		return new RestTemplate();
-	}
+//	@Bean
+//	public RestTemplate restTemplate() {
+//		
+//		return new RestTemplate();
+//	}
 
 }
