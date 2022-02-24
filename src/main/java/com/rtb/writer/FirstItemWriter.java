@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.rtb.model.StudentCsv;
 import com.rtb.model.StudentJSON;
+import com.rtb.model.StudentJdbc;
 import com.rtb.model.StudentXML;
 
 /*
@@ -14,7 +15,7 @@ import com.rtb.model.StudentXML;
  * do final implementation of the value passed by the item processor.
  */
 @Component
-public class FirstItemWriter implements ItemWriter<StudentXML>{
+public class FirstItemWriter implements ItemWriter<StudentJdbc>{
 
 	/**
 	 * In this method we will get the list of item.
@@ -22,7 +23,7 @@ public class FirstItemWriter implements ItemWriter<StudentXML>{
 	 * If the size of the chunk is 3 the list size is also 3.
 	 */
 	@Override
-	public void write(List<? extends StudentXML> items) throws Exception {
+	public void write(List<? extends StudentJdbc> items) throws Exception {
 		
 		System.out.println("Inside Item Writer");
 		
