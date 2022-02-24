@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.stereotype.Component;
 
+import com.rtb.model.ExpenseCategory;
 import com.rtb.model.StudentCsv;
 import com.rtb.model.StudentJSON;
 import com.rtb.model.StudentJdbc;
@@ -15,7 +16,7 @@ import com.rtb.model.StudentXML;
  * do final implementation of the value passed by the item processor.
  */
 @Component
-public class FirstItemWriter implements ItemWriter<StudentJdbc>{
+public class FirstItemWriter implements ItemWriter<ExpenseCategory>{
 
 	/**
 	 * In this method we will get the list of item.
@@ -23,7 +24,7 @@ public class FirstItemWriter implements ItemWriter<StudentJdbc>{
 	 * If the size of the chunk is 3 the list size is also 3.
 	 */
 	@Override
-	public void write(List<? extends StudentJdbc> items) throws Exception {
+	public void write(List<? extends ExpenseCategory> items) throws Exception {
 		
 		System.out.println("Inside Item Writer");
 		

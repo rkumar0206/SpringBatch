@@ -8,6 +8,7 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.item.adapter.ItemReaderAdapter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
@@ -24,12 +25,14 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
+import com.rtb.model.ExpenseCategory;
 import com.rtb.model.StudentCsv;
 import com.rtb.model.StudentJSON;
 import com.rtb.model.StudentJdbc;
 import com.rtb.model.StudentXML;
 import com.rtb.processor.FirstItemProcessor;
 import com.rtb.reader.FirstItemReader;
+import com.rtb.service.ExpenseCategoryService;
 import com.rtb.writer.FirstItemWriter;
 
 @Configuration
@@ -56,6 +59,9 @@ public class SampleJob {
 	@Autowired
 	private DataSource dataSource;
 
+	@Autowired
+	private ExpenseCategoryService expenseCategoryService;
+	
 	@Bean
 	public Job chunkJob() {
 
@@ -66,11 +72,12 @@ public class SampleJob {
 	private Step firstChunkStep() {
 
 		return stepBuilderFactory.get("First Chink Step")
-				.<StudentJdbc, StudentJdbc>chunk(3)
+				.<ExpenseCategory, ExpenseCategory>chunk(3)
 				//.reader(flatFileItemReader(null))
 				//.reader(jsonItemReader(null))
 				//.reader(staxEventItemReader(null))
-				.reader(jdbcCursorItemReader())
+				//.reader(jdbcCursorItemReader())
+				.reader(itemReaderAdapter())
 				//.processor(firstItemProcessor)
 				.writer(firstItemWriter)
 				.build();
@@ -236,6 +243,29 @@ public class SampleJob {
 		jdbcCursorItemReader.setMaxItemCount(8);
 		
 		return jdbcCursorItemReader;
+	}
+	
+	
+	/**
+	 * 
+	 * Reading from REST API call (rest template)
+	 */
+	private ItemReaderAdapter<ExpenseCategory> itemReaderAdapter() {
+		
+		ItemReaderAdapter<ExpenseCategory> itemReaderAdapter = 
+				new ItemReaderAdapter<>();
+		
+		itemReaderAdapter.setTargetObject(expenseCategoryService);
+		
+		// the method name passing in this method should always return 
+		// only one element and not the list of element at a time
+		itemReaderAdapter.setTargetMethod("getExpenseCategory");
+		
+		
+		// Note : for passing any argument to the method we can 
+		// use -  itemReaderAdapter.setArguments(new Object[] {1L,"test"});
+		
+		return itemReaderAdapter;
 	}
 	
 }
