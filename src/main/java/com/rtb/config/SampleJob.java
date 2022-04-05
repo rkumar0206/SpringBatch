@@ -17,6 +17,8 @@ import org.springframework.batch.item.file.FlatFileHeaderCallback;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
 import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
+import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
+import org.springframework.batch.item.json.JsonFileItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -65,10 +67,11 @@ public class SampleJob {
 
 	private Step firstChunkStep() {
 
-		return stepBuilderFactory.get("First Chink Step")
+		return stepBuilderFactory.get("First Chunk Step")
 				.<StudentJdbc, StudentJdbc>chunk(3)
 				.reader(jdbcCursorItemReader())
-				.writer(flatFileItemWriter(null))
+				//.writer(flatFileItemWriter(null))
+				.writer(jsonFileItemWriter(null))
 				.build();
 	}
 
@@ -158,5 +161,16 @@ public class SampleJob {
 		
 	}
 	
-	
+	@StepScope
+	@Bean
+	public JsonFileItemWriter<StudentJdbc> jsonFileItemWriter(
+			@Value("#{jobParameters['outputFile']}") FileSystemResource fileSystemResource
+			) {
+		
+		JsonFileItemWriter<StudentJdbc> jsonFileItemWriter  =
+				 new JsonFileItemWriter<>(fileSystemResource,
+						 new JacksonJsonObjectMarshaller<>());
+		
+		return jsonFileItemWriter;
+	}
 }

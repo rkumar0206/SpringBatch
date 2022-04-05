@@ -1,0 +1,12 @@
+[
+ {"id":1,"firstName":"Rohit","lastName":"Kumar","email":"rohit.rtb.com"},
+ {"id":2,"firstName":"Mohit","lastName":"Kumar","email":"mohit.rtb.com"},
+ {"id":3,"firstName":"Sagar","lastName":"Singh","email":"sagar.rtb.com"},
+ {"id":4,"firstName":"Nidhi","lastName":"Kumari","email":"nidhi.rtb.com"},
+ {"id":5,"firstName":"Priya","lastName":"Kumari","email":"priya.rtb.com"},
+ {"id":6,"firstName":"Shubham","lastName":"Kumar Mishra","email":"shubham.rtb.com"},
+ {"id":7,"firstName":"Satyam","lastName":"Kumar","email":"satyam.rtb.com"},
+ {"id":8,"firstName":"Suraj","lastName":"Kumar","email":"suraj.rtb.com"},
+ {"id":9,"firstName":"Saket","lastName":"Sourav","email":"saket.rtb.com"},
+ {"id":10,"firstName":"Bittu","lastName":"Pathak","email":"bittu.rtb.com"}
+]
